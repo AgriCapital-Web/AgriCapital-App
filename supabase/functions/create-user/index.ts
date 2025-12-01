@@ -140,23 +140,23 @@ serve(async (req) => {
     console.log("User authentication record created");
 
     // Create profile
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .insert({
-        id: authData.user.id,
-        username,
-        email,
-        nom_complet,
-        telephone,
-        whatsapp,
-        departement,
-        equipe_id,
-        relation_rh: relation_rh || "Employé",
-        taux_commission,
-        region_id,
-        photo_url,
-        est_actif: true,
-      });
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .insert({
+          id: authData.user.id,
+          username,
+          email,
+          nom_complet,
+          telephone: telephone || null,
+          whatsapp: whatsapp || null,
+          departement: departement || null,
+          equipe_id: equipe_id || null,
+          relation_rh: relation_rh || "Employé",
+          taux_commission: taux_commission || null,
+          region_id: region_id || null,
+          photo_url: photo_url || null,
+          est_actif: true,
+        });
 
     if (profileError) {
       console.error("Profile error:", profileError);

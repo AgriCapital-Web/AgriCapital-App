@@ -120,21 +120,31 @@ const NouvelleSouscription = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Non authentifié");
 
+      // Validation des champs obligatoires
+      if (!formData.nom_famille || !formData.prenoms || !formData.telephone) {
+        throw new Error("Veuillez remplir tous les champs obligatoires");
+      }
+
+      // Générer l'ID unique
+      const { data: genId, error: genErr } = await (supabase as any).rpc('generate_souscripteur_id');
+      if (genErr) throw genErr;
+
       // Créer le souscripteur (normalisation des enums en minuscules)
       const { data: souscripteur, error: errorSous } = await (supabase as any)
         .from("souscripteurs")
         .insert({
-          civilite: formData.civilite?.toLowerCase(),
+          id_unique: genId,
+          civilite: formData.civilite?.toLowerCase() || 'm',
           nom_complet: formData.nom_famille || "",
           prenoms: formData.prenoms || "",
-          date_naissance: formData.date_naissance,
+          date_naissance: formData.date_naissance || null,
           lieu_naissance: formData.lieu_naissance || "",
-          type_piece: formData.type_piece?.toLowerCase(),
-          numero_piece: formData.numero_piece,
-          date_delivrance_piece: formData.date_delivrance_piece,
-          fichier_piece_url: formData.fichier_piece_url || "",
-          photo_profil_url: formData.photo_profil_url || "",
-          statut_marital: formData.statut_marital?.toLowerCase(),
+          type_piece: formData.type_piece?.toLowerCase() || 'cni',
+          numero_piece: formData.numero_piece || "",
+          date_delivrance_piece: formData.date_delivrance_piece || null,
+          fichier_piece_url: formData.fichier_piece_url || null,
+          photo_profil_url: formData.photo_profil_url || null,
+          statut_marital: formData.statut_marital?.toLowerCase() || 'celibataire',
           conjoint_nom_prenoms: formData.cotit_nom_famille && formData.cotit_prenoms ? `${formData.cotit_nom_famille} ${formData.cotit_prenoms}` : null,
           conjoint_type_piece: formData.cotit_type_piece?.toLowerCase() || null,
           conjoint_numero_piece: formData.cotit_numero_piece || null,
@@ -151,6 +161,10 @@ const NouvelleSouscription = () => {
           numero_compte: formData.numero_compte || null,
           nom_beneficiaire: formData.nom_beneficiaire || null,
           banque_operateur: formData.banque_operateur || null,
+          district_id: formData.district_id || null,
+          region_id: formData.region_id || null,
+          departement_id: formData.departement_id || null,
+          sous_prefecture_id: formData.sous_prefecture_id || null,
           created_by: user.id,
         })
         .select()

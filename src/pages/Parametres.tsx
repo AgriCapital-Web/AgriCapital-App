@@ -24,7 +24,7 @@ const Parametres = () => {
           </div>
 
           <Tabs defaultValue="utilisateurs" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 gap-1">
               <TabsTrigger value="utilisateurs">
                 <Users className="h-4 w-4 mr-2" />
                 Utilisateurs
