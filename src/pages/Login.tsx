@@ -56,12 +56,13 @@ const Login = () => {
               <Input
                 id="username"
                 type="text"
-                placeholder="Admin"
+                placeholder="admin"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 className="h-11"
                 disabled={isLoading}
+                autoComplete="username"
               />
             </div>
             
@@ -114,11 +115,19 @@ const Login = () => {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm">
+          <div className="mt-6 text-center text-sm space-y-4">
             <p className="text-muted-foreground">Système de Gestion des Planteurs & Plantations</p>
-            <p className="mt-2 font-semibold text-primary">
+            <p className="font-semibold text-primary">
               "Le partenaire idéal des producteurs agricoles"
             </p>
+            <Button
+              type="button"
+              variant="link"
+              onClick={() => window.location.href = '/account-request'}
+              className="text-accent"
+            >
+              Demander la création d'un compte
+            </Button>
           </div>
         </CardContent>
       </Card>
