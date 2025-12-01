@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { NotificationCenter } from "@/components/common/NotificationCenter";
 import logoWhite from "@/assets/logo-white.png";
 import { cn } from "@/lib/utils";
 import { 
@@ -16,7 +17,8 @@ import {
   UsersRound,
   Receipt,
   Plus,
-  Smartphone
+  Smartphone,
+  UserCheck
 } from "lucide-react";
 
 interface MainLayoutProps {
@@ -44,6 +46,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     { icon: Smartphone, label: "Paiements Wave", path: "/paiements-wave", requireRole: canViewPaiements },
     { icon: UsersRound, label: "Équipes", path: "/equipes" },
     { icon: Receipt, label: "Commissions", path: "/commissions", requireRole: canViewCommissions },
+    { icon: UserCheck, label: "Demandes de compte", path: "/account-requests", adminOnly: true },
     { icon: Shield, label: "Paramètres", path: "/parametres", adminOnly: true },
   ];
 
@@ -84,7 +87,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           ))}
       </nav>
 
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-white/10 flex flex-col gap-2">
+        <NotificationCenter />
         <Button
           variant="ghost"
           className="w-full justify-center text-primary-foreground hover:bg-destructive hover:text-white transition-all p-3"

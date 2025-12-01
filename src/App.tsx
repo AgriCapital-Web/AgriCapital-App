@@ -9,7 +9,6 @@ import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
-import CreateSuperAdmin from "./pages/CreateSuperAdmin";
 import Planteurs from "./pages/Souscriptions";
 import PlanteurDetail from "./pages/PlanteurDetail";
 import Plantations from "./pages/Plantations";
@@ -23,6 +22,9 @@ import Promotions from "./pages/Promotions";
 import NouvelleSouscription from "./pages/NouvelleSouscription";
 import Parametres from "./pages/Parametres";
 import HistoriqueComplet from "./pages/HistoriqueComplet";
+import AccountRequest from "./pages/AccountRequest";
+import AccountRequests from "./pages/AccountRequests";
+import CreateSuperAdmin from "./pages/CreateSuperAdmin";
 import PaiementsWave from "./pages/PaiementsWave";
 import NotFound from "./pages/NotFound";
 
@@ -37,10 +39,13 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/account-request" element={<AccountRequest />} />
+        <Route path="/create-super-admin" element={<CreateSuperAdmin />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/account-requests" element={<AccountRequests />} />
             <Route path="/souscriptions" element={<Planteurs />} />
             <Route path="/planteur/:id" element={<PlanteurDetail />} />
             <Route path="/planteur/:id/historique" element={<HistoriqueComplet />} />
