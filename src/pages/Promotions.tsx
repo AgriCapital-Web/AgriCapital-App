@@ -1,5 +1,4 @@
 import { useState } from "react";
-import MainLayout from "@/components/layout/MainLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -174,10 +173,9 @@ const Promotions = () => {
   };
 
   return (
-    <MainLayout>
-      <div className="p-6 space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
             <h1 className="text-3xl font-bold">Gestion des Promotions</h1>
             <p className="text-muted-foreground">Configuration des réductions sur le Droit d'Accès</p>
           </div>
@@ -368,7 +366,6 @@ const Promotions = () => {
           </CardContent>
         </Card>
       </div>
-    </MainLayout>
   );
 };
 

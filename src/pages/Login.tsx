@@ -117,7 +117,7 @@ const Login = () => {
           <div className="mt-6 text-center text-sm">
             <p className="text-muted-foreground">Système de Gestion des Planteurs & Plantations</p>
             <p className="mt-2 font-semibold text-primary">
-              "Ensemble, cultivons la prospérité durable"
+              "Le partenaire idéal des producteurs agricoles"
             </p>
           </div>
         </CardContent>

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { ActivityLog } from "@/components/common/ActivityLog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -421,6 +422,9 @@ const PlanteurDetail = () => {
               </Card>
             </TabsContent>
           </Tabs>
+
+          {/* Traçabilité et historique */}
+          {id && <ActivityLog entityType="souscripteur" entityId={id} showAddNote={true} />}
         </div>
       </MainLayout>
     </ProtectedRoute>
