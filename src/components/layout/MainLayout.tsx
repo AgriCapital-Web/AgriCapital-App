@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -18,7 +18,10 @@ import {
   Receipt,
   Plus,
   Smartphone,
-  UserCheck
+  UserCheck,
+  BarChart3,
+  Ticket,
+  Wallet
 } from "lucide-react";
 
 interface MainLayoutProps {
@@ -28,14 +31,18 @@ interface MainLayoutProps {
 const MainLayout = ({ children }: MainLayoutProps) => {
   const { signOut, profile, hasRole } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
 
   const canViewPaiements = hasRole('super_admin') || hasRole('directeur_general') || 
     hasRole('responsable_financier') || hasRole('agent_service_client');
   
   const canViewCommissions = hasRole('super_admin') || hasRole('pdg') || hasRole('directeur_general') ||
-    hasRole('responsable_financier') || hasRole('comptable') || hasRole('commercial') ||
+    hasRole('responsable_financier') || hasRole('comptable') || hasRole('technico_commercial') ||
     hasRole('chef_equipe') || hasRole('responsable_zone');
+
+  const canViewRapports = hasRole('super_admin') || hasRole('pdg') || hasRole('directeur_general') ||
+    hasRole('directeur_technico_commercial') || hasRole('responsable_zone');
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Tableau de bord", path: "/dashboard" },
@@ -46,6 +53,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     { icon: Smartphone, label: "Paiements Wave", path: "/paiements-wave", requireRole: canViewPaiements },
     { icon: UsersRound, label: "Équipes", path: "/equipes" },
     { icon: Receipt, label: "Commissions", path: "/commissions", requireRole: canViewCommissions },
+    { icon: BarChart3, label: "Rapports Technico-Comm.", path: "/rapports-techniques", requireRole: canViewRapports },
+    { icon: Wallet, label: "Portefeuilles", path: "/portefeuilles", requireRole: canViewCommissions },
+    { icon: Ticket, label: "Tickets", path: "/tickets" },
     { icon: UserCheck, label: "Demandes de compte", path: "/account-requests", adminOnly: true },
     { icon: Shield, label: "Paramètres", path: "/parametres", adminOnly: true },
   ];
@@ -74,7 +84,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               variant="ghost"
               className={cn(
                 "w-full justify-center text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground transition-all",
-                "focus:bg-primary-foreground/20 p-3"
+                "focus:bg-primary-foreground/20 p-3",
+                location.pathname === item.path && "bg-primary-foreground/20"
               )}
               onClick={() => {
                 navigate(item.path);
