@@ -225,82 +225,82 @@ const Dashboard = () => {
   return (
     <ProtectedRoute>
       <MainLayout>
-        <div className="space-y-6 animate-fade-in">
+        <div className="space-y-4 sm:space-y-6 animate-fade-in">
           {/* Header */}
-          <div className="bg-gradient-to-r from-primary to-primary/80 p-6 rounded-lg shadow-lg">
-            <h1 className="text-3xl font-bold text-primary-foreground">
+          <div className="bg-gradient-to-r from-primary to-primary/80 p-4 sm:p-6 rounded-lg shadow-lg">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary-foreground">
               Bienvenue, <span className="text-accent font-extrabold">{profile?.nom_complet || "Utilisateur"}</span>
             </h1>
-            <p className="text-primary-foreground/90 mt-2 flex items-center gap-4">
+            <p className="text-primary-foreground/90 mt-2 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm">
               <span>Connecté à {connectionTime}</span>
-              <span className="text-primary-foreground/70">•</span>
+              <span className="hidden sm:inline text-primary-foreground/70">•</span>
               <span>Support: <a href="tel:+2250759566087" className="text-accent hover:underline font-semibold">+225 07 59 56 60 87</a></span>
             </p>
           </div>
 
           {/* 1️⃣ APERÇU GLOBAL */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
             <Card className="hover-scale cursor-pointer transition-all hover:shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Planteurs Inscrits
+              <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 sm:p-4 lg:p-6">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
+                  Planteurs
                 </CardTitle>
-                <Users className="h-5 w-5 text-primary" />
+                <Users className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.totalPlanteurs}</div>
+              <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold">{stats.totalPlanteurs}</div>
                 {stats.evolutionPlanteurs > 0 && (
-                  <div className="flex items-center gap-1 mt-2 text-green-600">
-                    <TrendingUp className="h-4 w-4" />
-                    <span className="text-sm font-medium">+{stats.evolutionPlanteurs}% ce mois</span>
+                  <div className="flex items-center gap-1 mt-1 sm:mt-2 text-green-600">
+                    <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="text-xs sm:text-sm font-medium">+{stats.evolutionPlanteurs}%</span>
                   </div>
                 )}
               </CardContent>
             </Card>
 
             <Card className="hover-scale cursor-pointer transition-all hover:shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 sm:p-4 lg:p-6">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Plantations
                 </CardTitle>
-                <Sprout className="h-5 w-5 text-primary" />
+                <Sprout className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.totalPlantations}</div>
-                <p className="text-sm text-muted-foreground mt-2">
-                  {stats.totalSuperficie.toFixed(1)} hectares au total
+              <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold">{stats.totalPlantations}</div>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2">
+                  {stats.totalSuperficie.toFixed(1)} ha
                 </p>
               </CardContent>
             </Card>
 
             <Card className="hover-scale cursor-pointer transition-all hover:shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  En Production
+              <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 sm:p-4 lg:p-6">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
+                  Production
                 </CardTitle>
-                <TrendingUp className="h-5 w-5 text-green-600" />
+                <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-green-600" />
               </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{stats.plantationsEnProduction}</div>
-                <p className="text-sm text-muted-foreground mt-2">
-                  {stats.tauxProduction}% du total
+              <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
+                <div className="text-xl sm:text-2xl lg:text-3xl font-bold">{stats.plantationsEnProduction}</div>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2">
+                  {stats.tauxProduction}%
                 </p>
               </CardContent>
             </Card>
 
             <Card className="hover-scale cursor-pointer transition-all hover:shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+              <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 sm:p-4 lg:p-6">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">
                   Paiements
                 </CardTitle>
-                <CreditCard className="h-5 w-5 text-primary" />
+                <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatMontant(stats.totalPaiements)}</div>
+              <CardContent className="p-3 sm:p-4 lg:p-6 pt-0">
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold">{formatMontant(stats.totalPaiements)}</div>
                 {stats.paiementsEnAttente > 0 && (
-                  <p className="text-sm text-orange-600 mt-2 flex items-center gap-1">
-                    <AlertCircle className="h-4 w-4" />
-                    {stats.paiementsEnAttente} en attente
+                  <p className="text-xs sm:text-sm text-orange-600 mt-1 sm:mt-2 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                    {stats.paiementsEnAttente} attente
                   </p>
                 )}
               </CardContent>
@@ -311,17 +311,17 @@ const Dashboard = () => {
           <PlantationsMap />
 
           {/* 2️⃣ ANALYSE GRAPHIQUE */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Évolution mensuelle */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-primary" />
+            <CardHeader className="p-3 sm:p-4 lg:p-6">
+              <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 Évolution sur 6 mois
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
+            <CardContent className="p-2 sm:p-4 lg:p-6">
+              <ResponsiveContainer width="100%" height={200} className="sm:!h-[250px] lg:!h-[300px]">
                 <AreaChart data={evolutionMensuelle}>
                   <defs>
                     <linearGradient id="colorPlantations" x1="0" y1="0" x2="0" y2="1">
@@ -330,16 +330,16 @@ const Dashboard = () => {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="mois" stroke="hsl(var(--muted-foreground))" />
-                  <YAxis stroke="hsl(var(--muted-foreground))" />
+                  <XAxis dataKey="mois" stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 10 }} />
+                  <YAxis stroke="hsl(var(--muted-foreground))" tick={{ fontSize: 10 }} />
                   <Tooltip 
                     contentStyle={{
                       backgroundColor: 'hsl(var(--card))',
                       border: '1px solid hsl(var(--border))',
-                      borderRadius: '8px'
+                      borderRadius: '8px',
+                      fontSize: '12px'
                     }}
                   />
-                  <Legend />
                   <Area 
                     type="monotone" 
                     dataKey="plantations" 
@@ -355,22 +355,22 @@ const Dashboard = () => {
 
             {/* Répartition par département */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5 text-primary" />
+              <CardHeader className="p-3 sm:p-4 lg:p-6">
+                <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                  <MapPin className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   Répartition par Département
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+              <CardContent className="p-2 sm:p-4 lg:p-6">
+                <ResponsiveContainer width="100%" height={200} className="sm:!h-[250px] lg:!h-[300px]">
                   <PieChart>
                     <Pie
                       data={statsParRegion}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
+                      label={({ name, percent }) => `${name?.slice(0,6) || ''} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={60}
                       fill="#8884d8"
                       dataKey="value"
                     >
@@ -386,27 +386,27 @@ const Dashboard = () => {
 
             {/* Progression paiements */}
             <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-primary" />
-                  Évolution des Paiements (en millions XOF)
+              <CardHeader className="p-3 sm:p-4 lg:p-6">
+                <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+                  <DollarSign className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  <span className="hidden sm:inline">Évolution des Paiements (en millions XOF)</span>
+                  <span className="sm:hidden">Paiements (M XOF)</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
+              <CardContent className="p-2 sm:p-4 lg:p-6">
+                <ResponsiveContainer width="100%" height={200} className="sm:!h-[250px] lg:!h-[300px]">
                   <LineChart data={evolutionMensuelle}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="mois" />
-                    <YAxis />
+                    <XAxis dataKey="mois" tick={{ fontSize: 10 }} />
+                    <YAxis tick={{ fontSize: 10 }} />
                     <Tooltip />
-                    <Legend />
                     <Line 
                       type="monotone" 
                       dataKey="paiements" 
-                      name="Paiements (M XOF)" 
+                      name="Paiements" 
                       stroke="hsl(var(--primary))" 
                       strokeWidth={2}
-                      dot={{ r: 4 }}
+                      dot={{ r: 3 }}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -415,7 +415,7 @@ const Dashboard = () => {
           </div>
 
           {/* 3️⃣ TABLEAUX DÉTAILLÉS */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Planteurs récents */}
             <Card>
               <CardHeader>

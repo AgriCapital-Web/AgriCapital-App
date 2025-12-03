@@ -132,8 +132,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       </Sheet>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        <div className="container mx-auto p-6">
+      <main className="flex-1 overflow-auto pt-16 md:pt-0">
+        <div className="container mx-auto p-3 sm:p-4 md:p-6">
           {children}
         </div>
       </main>

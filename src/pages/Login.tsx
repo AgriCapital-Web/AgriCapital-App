@@ -30,27 +30,27 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary to-primary-hover p-4 relative">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary to-primary-hover p-3 sm:p-4 relative overflow-hidden">
       {/* Pattern de fond subtil */}
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNnptMCA0YzEuMTA1IDAgMiAuODk1IDIgMnMtLjg5NSAyLTIgMi0yLS44OTUtMi0yIC44OTUtMiAyLTJ6IiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIuMDUiLz48L2c+PC9zdmc+')] opacity-20"></div>
       
       {/* Overlay pour adoucir le fond */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
       
-      <Card className="w-full max-w-md shadow-strong relative z-10 backdrop-blur-sm bg-white/95">
-        <CardHeader className="space-y-4 text-center pb-8">
-          <div className="flex justify-center mb-4">
-            <img src={logoGreen} alt="AgriCapital Logo" className="h-32 w-auto" />
+      <Card className="w-full max-w-[95%] sm:max-w-md shadow-strong relative z-10 backdrop-blur-sm bg-white/95">
+        <CardHeader className="space-y-2 sm:space-y-4 text-center pb-4 sm:pb-8 px-4 sm:px-6">
+          <div className="flex justify-center mb-2 sm:mb-4">
+            <img src={logoGreen} alt="AgriCapital Logo" className="h-20 sm:h-32 w-auto" />
           </div>
-          <CardTitle className="text-2xl font-bold text-primary">
+          <CardTitle className="text-xl sm:text-2xl font-bold text-primary">
             Connexion
           </CardTitle>
         </CardHeader>
         
-        <CardContent>
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="username" className="text-foreground font-medium">
+        <CardContent className="px-4 sm:px-6">
+          <form onSubmit={handleLogin} className="space-y-4 sm:space-y-6">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="username" className="text-foreground font-medium text-sm sm:text-base">
                 Nom d'utilisateur
               </Label>
               <Input
@@ -60,21 +60,21 @@ const Login = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="h-11"
+                className="h-10 sm:h-11 text-sm sm:text-base"
                 disabled={isLoading}
                 autoComplete="username"
               />
             </div>
             
-            <div className="space-y-2">
+            <div className="space-y-1.5 sm:space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-foreground font-medium">
+                <Label htmlFor="password" className="text-foreground font-medium text-sm sm:text-base">
                   Mot de passe
                 </Label>
                 <button
                   type="button"
-                  onClick={() => window.location.href = '/forgot-password'}
-                  className="text-sm text-accent hover:underline font-medium"
+                  onClick={() => navigate('/forgot-password')}
+                  className="text-xs sm:text-sm text-accent hover:underline font-medium"
                 >
                   Mot de passe oublié ?
                 </button>
@@ -87,14 +87,14 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="h-11 pr-10"
+                  className="h-10 sm:h-11 pr-10 text-sm sm:text-base"
                   disabled={isLoading}
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 h-11 w-11 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-10 sm:h-11 w-10 sm:w-11 hover:bg-transparent"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -108,23 +108,23 @@ const Login = () => {
 
             <Button 
               type="submit" 
-              className="w-full h-11 text-base font-semibold bg-primary hover:bg-primary-hover text-primary-foreground transition-all"
+              className="w-full h-10 sm:h-11 text-sm sm:text-base font-semibold bg-primary hover:bg-primary-hover text-primary-foreground transition-all"
               disabled={isLoading}
             >
               {isLoading ? "Connexion..." : "Se connecter"}
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm space-y-4">
+          <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm space-y-2 sm:space-y-4">
             <p className="text-muted-foreground">Système de Gestion des Planteurs & Plantations</p>
-            <p className="font-semibold text-primary">
+            <p className="font-semibold text-primary text-xs sm:text-sm">
               "Le partenaire idéal des producteurs agricoles"
             </p>
             <Button
               type="button"
               variant="link"
-              onClick={() => window.location.href = '/account-request'}
-              className="text-accent"
+              onClick={() => navigate('/account-request')}
+              className="text-accent text-xs sm:text-sm p-0 h-auto"
             >
               Demander la création d'un compte
             </Button>
