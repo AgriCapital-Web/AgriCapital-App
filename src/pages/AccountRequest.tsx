@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,16 +9,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import logoGreen from "@/assets/logo-green.png";
+import { User, Mail, Phone, Briefcase, MapPin, FileText, Camera, Upload } from "lucide-react";
 
 const ROLES = [
   { value: "technico_commercial", label: "Technico-commercial" },
   { value: "chef_equipe", label: "Chef d'équipe" },
   { value: "responsable_zone", label: "Responsable de zone" },
-  { value: "responsable_operations", label: "Responsable des opérations" },
-  { value: "responsable_service_client", label: "Responsable service client" },
-  { value: "agent_service_client", label: "Agent service client" },
-  { value: "responsable_financier", label: "Responsable financier" },
-  { value: "comptable", label: "Comptable" }
+  { value: "agent_terrain", label: "Agent terrain" },
+  { value: "comptable", label: "Comptable" },
+  { value: "support", label: "Support" }
 ];
 
 const AccountRequest = () => {
@@ -26,17 +25,68 @@ const AccountRequest = () => {
     nom_complet: "",
     email: "",
     telephone: "",
-    poste_souhaite: "",
-    role_souhaite: "",
+    poste: "",
+    region: "",
     departement: "",
-    justification: ""
+    district: "",
+    message: ""
   });
+  
+  const [regions, setRegions] = useState<any[]>([]);
+  const [departements, setDepartements] = useState<any[]>([]);
+  const [districts, setDistricts] = useState<any[]>([]);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string>("");
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Fetch regions on mount
+  useEffect(() => {
+    const fetchRegions = async () => {
+      const { data } = await supabase.from('regions').select('*').order('nom');
+      setRegions(data || []);
+    };
+    fetchRegions();
+  }, []);
+
+  // Fetch departements when region changes
+  useEffect(() => {
+    const fetchDepartements = async () => {
+      if (formData.region) {
+        const { data } = await supabase
+          .from('departements')
+          .select('*')
+          .eq('region_id', formData.region)
+          .order('nom');
+        setDepartements(data || []);
+        setFormData(prev => ({ ...prev, departement: "", district: "" }));
+        setDistricts([]);
+      } else {
+        setDepartements([]);
+      }
+    };
+    fetchDepartements();
+  }, [formData.region]);
+
+  // Fetch districts when departement changes
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      if (formData.departement) {
+        const { data } = await supabase
+          .from('districts')
+          .select('*')
+          .eq('departement_id', formData.departement)
+          .order('nom');
+        setDistricts(data || []);
+        setFormData(prev => ({ ...prev, district: "" }));
+      } else {
+        setDistricts([]);
+      }
+    };
+    fetchDistricts();
+  }, [formData.departement]);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -52,30 +102,38 @@ const AccountRequest = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!photoFile) {
+      toast({
+        variant: "destructive",
+        title: "Photo requise",
+        description: "Veuillez ajouter une photo de profil",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       let photoUrl = null;
       let cvUrl = null;
 
-      // Upload photo if provided
-      if (photoFile) {
-        const photoPath = `account-requests/${Date.now()}-${photoFile.name}`;
-        const { error: photoError } = await supabase.storage
-          .from('documents')
-          .upload(photoPath, photoFile);
+      // Upload photo
+      const photoPath = `account-requests/${Date.now()}-photo-${photoFile.name}`;
+      const { error: photoError } = await supabase.storage
+        .from('documents')
+        .upload(photoPath, photoFile);
 
-        if (photoError) throw photoError;
+      if (photoError) throw photoError;
 
-        const { data: photoData } = supabase.storage
-          .from('documents')
-          .getPublicUrl(photoPath);
-        photoUrl = photoData.publicUrl;
-      }
+      const { data: photoData } = supabase.storage
+        .from('documents')
+        .getPublicUrl(photoPath);
+      photoUrl = photoData.publicUrl;
 
       // Upload CV if provided
       if (cvFile) {
-        const cvPath = `account-requests/${Date.now()}-${cvFile.name}`;
+        const cvPath = `account-requests/${Date.now()}-cv-${cvFile.name}`;
         const { error: cvError } = await supabase.storage
           .from('documents')
           .upload(cvPath, cvFile);
@@ -88,30 +146,47 @@ const AccountRequest = () => {
         cvUrl = cvData.publicUrl;
       }
 
+      // Get region/department/district names for storage
+      const regionName = regions.find(r => r.id === formData.region)?.nom || "";
+      const deptName = departements.find(d => d.id === formData.departement)?.nom || "";
+      const districtName = districts.find(d => d.id === formData.district)?.nom || "";
+
       // Create account request
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('account_requests')
         .insert({
-          ...formData,
+          nom_complet: formData.nom_complet,
+          email: formData.email,
+          telephone: formData.telephone,
+          poste: formData.poste,
+          region: regionName,
+          departement: deptName,
+          district: districtName,
+          message: formData.message,
           photo_url: photoUrl,
-          cv_url: cvUrl
+          cv_url: cvUrl,
+          status: 'en_attente'
         });
 
       if (error) throw error;
 
-      // Send notification to admin
-      await supabase.functions.invoke('send-account-request-notification', {
-        body: { requestData: formData }
-      });
+      // Try to send notification (non-blocking)
+      try {
+        await supabase.functions.invoke('send-account-request-notification', {
+          body: { requestData: { ...formData, region: regionName, departement: deptName } }
+        });
+      } catch (notifError) {
+        console.log('Notification error (non-blocking):', notifError);
+      }
 
       toast({
         title: "Demande envoyée",
-        description: "Votre demande de création de compte a été envoyée avec succès. Vous recevrez une réponse par email.",
+        description: "Votre demande sera examinée par l'administrateur.",
       });
 
       navigate('/login');
     } catch (error: any) {
-      console.error('Error submitting request:', error);
+      console.error('Error:', error);
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -123,72 +198,108 @@ const AccountRequest = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary to-primary-hover p-4">
-      <Card className="w-full max-w-2xl shadow-strong">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <img src={logoGreen} alt="AgriCapital Logo" className="h-24 w-auto" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary to-primary-hover p-3 sm:p-4">
+      <Card className="w-full max-w-[95%] sm:max-w-2xl shadow-strong my-4">
+        <CardHeader className="text-center px-4 sm:px-6 pb-4">
+          <div className="flex justify-center mb-2 sm:mb-4">
+            <img src={logoGreen} alt="AgriCapital Logo" className="h-16 sm:h-24 w-auto" />
           </div>
-          <CardTitle className="text-2xl">Demande de Création de Compte</CardTitle>
-          <CardDescription>
-            Remplissez ce formulaire pour demander un accès à la plateforme AgriCapital
+          <CardTitle className="text-xl sm:text-2xl">Demande de Création de Compte</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">
+            Remplissez ce formulaire pour demander un accès à AgriCapital
           </CardDescription>
         </CardHeader>
 
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="nom_complet">Nom complet *</Label>
+        <CardContent className="px-4 sm:px-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+            {/* Photo de profil - En premier et obligatoire */}
+            <div className="flex flex-col items-center space-y-3">
+              <Label className="text-sm font-medium flex items-center gap-2">
+                <Camera className="h-4 w-4" />
+                Photo de profil *
+              </Label>
+              <div className="relative">
+                {photoPreview ? (
+                  <img
+                    src={photoPreview}
+                    alt="Aperçu"
+                    className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-full border-4 border-primary"
+                  />
+                ) : (
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-dashed border-muted-foreground/30 flex items-center justify-center bg-muted">
+                    <User className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground/50" />
+                  </div>
+                )}
+                <label htmlFor="photo" className="absolute bottom-0 right-0 bg-primary text-primary-foreground p-2 rounded-full cursor-pointer hover:bg-primary/90">
+                  <Camera className="h-4 w-4" />
+                </label>
+                <input
+                  id="photo"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handlePhotoChange}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">Cliquez sur l'icône pour ajouter votre photo</p>
+            </div>
+
+            {/* Informations personnelles */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="nom_complet" className="text-sm flex items-center gap-2">
+                  <User className="h-3.5 w-3.5" /> Nom complet *
+                </Label>
                 <Input
                   id="nom_complet"
                   required
+                  className="h-10"
                   value={formData.nom_complet}
                   onChange={(e) => setFormData({...formData, nom_complet: e.target.value})}
+                  placeholder="Ex: KOUASSI Jean"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="text-sm flex items-center gap-2">
+                  <Mail className="h-3.5 w-3.5" /> Email *
+                </Label>
                 <Input
                   id="email"
                   type="email"
                   required
+                  className="h-10"
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  placeholder="votre@email.com"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="telephone">Téléphone *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="telephone" className="text-sm flex items-center gap-2">
+                  <Phone className="h-3.5 w-3.5" /> Téléphone *
+                </Label>
                 <Input
                   id="telephone"
                   type="tel"
                   required
+                  className="h-10"
                   value={formData.telephone}
                   onChange={(e) => setFormData({...formData, telephone: e.target.value})}
+                  placeholder="07 XX XX XX XX"
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="poste_souhaite">Poste souhaité *</Label>
-                <Input
-                  id="poste_souhaite"
-                  required
-                  value={formData.poste_souhaite}
-                  onChange={(e) => setFormData({...formData, poste_souhaite: e.target.value})}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="role_souhaite">Rôle souhaité *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="poste" className="text-sm flex items-center gap-2">
+                  <Briefcase className="h-3.5 w-3.5" /> Poste souhaité *
+                </Label>
                 <Select
-                  value={formData.role_souhaite}
-                  onValueChange={(value) => setFormData({...formData, role_souhaite: value})}
-                  required
+                  value={formData.poste}
+                  onValueChange={(value) => setFormData({...formData, poste: value})}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un rôle" />
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Sélectionner un poste" />
                   </SelectTrigger>
                   <SelectContent>
                     {ROLES.map(role => (
@@ -199,74 +310,114 @@ const AccountRequest = () => {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="departement">Département</Label>
-                <Input
-                  id="departement"
+            {/* Localisation */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium flex items-center gap-2">
+                <MapPin className="h-4 w-4" /> Localisation
+              </Label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <Select
+                  value={formData.region}
+                  onValueChange={(value) => setFormData({...formData, region: value})}
+                >
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Région" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {regions.map(region => (
+                      <SelectItem key={region.id} value={region.id}>
+                        {region.nom}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
                   value={formData.departement}
-                  onChange={(e) => setFormData({...formData, departement: e.target.value})}
-                />
+                  onValueChange={(value) => setFormData({...formData, departement: value})}
+                  disabled={!formData.region}
+                >
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Département" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departements.map(dept => (
+                      <SelectItem key={dept.id} value={dept.id}>
+                        {dept.nom}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select
+                  value={formData.district}
+                  onValueChange={(value) => setFormData({...formData, district: value})}
+                  disabled={!formData.departement}
+                >
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="District" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {districts.map(dist => (
+                      <SelectItem key={dist.id} value={dist.id}>
+                        {dist.nom}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="justification">Justification de la demande *</Label>
+            {/* Message / Justification */}
+            <div className="space-y-1.5">
+              <Label htmlFor="message" className="text-sm flex items-center gap-2">
+                <FileText className="h-3.5 w-3.5" /> Message / Justification
+              </Label>
               <Textarea
-                id="justification"
-                required
-                rows={4}
-                value={formData.justification}
-                onChange={(e) => setFormData({...formData, justification: e.target.value})}
-                placeholder="Expliquez pourquoi vous souhaitez accéder à la plateforme..."
+                id="message"
+                rows={3}
+                className="text-sm"
+                value={formData.message}
+                onChange={(e) => setFormData({...formData, message: e.target.value})}
+                placeholder="Expliquez pourquoi vous souhaitez rejoindre AgriCapital..."
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="photo">Photo de profil *</Label>
-              <Input
-                id="photo"
-                type="file"
-                accept="image/*"
-                required
-                onChange={handlePhotoChange}
-              />
-              {photoPreview && (
-                <div className="mt-2">
-                  <img
-                    src={photoPreview}
-                    alt="Aperçu"
-                    className="w-32 h-32 object-cover rounded-full border-4 border-primary"
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="cv">CV (optionnel)</Label>
+            {/* CV Upload */}
+            <div className="space-y-1.5">
+              <Label htmlFor="cv" className="text-sm flex items-center gap-2">
+                <Upload className="h-3.5 w-3.5" /> CV (optionnel)
+              </Label>
               <Input
                 id="cv"
                 type="file"
                 accept=".pdf,.doc,.docx"
+                className="h-10 text-sm"
                 onChange={(e) => setCvFile(e.target.files?.[0] || null)}
               />
+              {cvFile && (
+                <p className="text-xs text-muted-foreground">Fichier sélectionné: {cvFile.name}</p>
+              )}
             </div>
 
-            <div className="flex gap-4">
+            {/* Boutons */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => navigate('/login')}
-                className="flex-1"
+                className="flex-1 h-10 sm:h-11"
               >
                 Annuler
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1"
+                className="flex-1 h-10 sm:h-11"
               >
-                {isSubmitting ? "Envoi..." : "Envoyer la demande"}
+                {isSubmitting ? "Envoi en cours..." : "Envoyer la demande"}
               </Button>
             </div>
           </form>

@@ -19,27 +19,47 @@ serve(async (req) => {
     );
 
     const { username, email, password, nom_complet, telephone } = await req.json();
-    console.log('Creating super admin:', { username, email, nom_complet });
+    console.log('Creating/updating super admin:', { username, email, nom_complet });
 
-    // Create auth user
-    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-    });
+    let userId: string | undefined;
 
-    let userId = authData?.user?.id;
+    // Check if user already exists
+    const { data: listData } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    const existingUser = listData?.users?.find((u: any) => u.email?.toLowerCase() === email.toLowerCase());
 
-    if (authError) {
-      if (authError.message?.includes('already') || authError.status === 422) {
-        const { data: listData } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-        const found = listData?.users?.find((u: any) => u.email?.toLowerCase() === email.toLowerCase());
-        if (found) userId = found.id;
+    if (existingUser) {
+      userId = existingUser.id;
+      console.log('User exists, updating password for:', userId);
+      
+      // Update the existing user's password
+      const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+        password: password,
+        email_confirm: true,
+      });
+      
+      if (updateError) {
+        console.error('Error updating password:', updateError);
+        return new Response(JSON.stringify({ error: 'Erreur mise à jour mot de passe: ' + updateError.message }), 
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
-      if (!userId) {
+    } else {
+      // Create new auth user
+      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+      });
+
+      if (authError) {
         return new Response(JSON.stringify({ error: authError.message }), 
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
+      userId = authData?.user?.id;
+    }
+
+    if (!userId) {
+      return new Response(JSON.stringify({ error: 'Impossible de créer l\'utilisateur' }), 
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     // Upsert profile

@@ -34,7 +34,7 @@ const CreateSuperAdmin = () => {
       setIsSuccess(true);
       toast({
         title: "Succès",
-        description: "Compte super admin créé avec succès !",
+        description: data?.message || "Compte super admin créé/mis à jour avec succès !",
       });
 
       console.log('Super admin créé:', data);
@@ -51,8 +51,8 @@ const CreateSuperAdmin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary/90 to-accent/30 p-4">
-      <Card className="w-full max-w-md shadow-2xl">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary/90 to-accent/30 p-3 sm:p-4">
+      <Card className="w-full max-w-[95%] sm:max-w-md shadow-2xl">
         <CardHeader className="text-center pb-2">
           <div className="flex justify-center mb-4">
             <img src={logoGreen} alt="AgriCapital" className="h-20 w-auto" />
@@ -135,7 +135,7 @@ const CreateSuperAdmin = () => {
                 ) : (
                   <>
                     <Shield className="mr-2 h-5 w-5" />
-                    Créer le compte Super Admin
+                    Créer / Réinitialiser Super Admin
                   </>
                 )}
               </Button>
