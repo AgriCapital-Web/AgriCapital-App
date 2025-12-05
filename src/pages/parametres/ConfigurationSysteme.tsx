@@ -16,7 +16,7 @@ interface Configuration {
   valeur: string;
   description: string | null;
   categorie: string;
-  type_donnee: string;
+  type_valeur: string;
   modifiable: boolean;
 }
 
@@ -28,8 +28,8 @@ const ConfigurationSysteme = () => {
   const { data: configurations, isLoading } = useQuery({
     queryKey: ['configurations'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('configuration_systeme')
+      const { data, error } = await (supabase as any)
+        .from('configurations_systeme')
         .select('*')
         .order('categorie', { ascending: true })
         .order('cle', { ascending: true});
@@ -41,8 +41,8 @@ const ConfigurationSysteme = () => {
 
   const updateConfigMutation = useMutation({
     mutationFn: async ({ id, valeur }: { id: string; valeur: string }) => {
-      const { error } = await supabase
-        .from('configuration_systeme')
+      const { error } = await (supabase as any)
+        .from('configurations_systeme')
         .update({ valeur, updated_at: new Date().toISOString() })
         .eq('id', id);
       
@@ -77,9 +77,8 @@ const ConfigurationSysteme = () => {
 
   const renderInput = (config: Configuration) => {
     const currentValue = editedValues[config.id] ?? config.valeur;
-    const hasChanged = editedValues[config.id] !== undefined && editedValues[config.id] !== config.valeur;
 
-    switch (config.type_donnee) {
+    switch (config.type_valeur) {
       case 'boolean':
         return (
           <div className="flex items-center justify-between">
@@ -115,7 +114,7 @@ const ConfigurationSysteme = () => {
             <Label htmlFor={config.id}>{config.description || config.cle}</Label>
             <Input
               id={config.id}
-              type={config.type_donnee === 'email' ? 'email' : config.type_donnee === 'url' ? 'url' : 'text'}
+              type={config.type_valeur === 'email' ? 'email' : config.type_valeur === 'url' ? 'url' : 'text'}
               value={currentValue}
               onChange={(e) => handleValueChange(config.id, e.target.value)}
               disabled={!config.modifiable || updateConfigMutation.isPending}
@@ -140,6 +139,7 @@ const ConfigurationSysteme = () => {
       case 'paiements': return <DollarSign className="h-4 w-4" />;
       case 'commissions': return <DollarSign className="h-4 w-4" />;
       case 'notifications': return <Bell className="h-4 w-4" />;
+      case 'alertes': return <Bell className="h-4 w-4" />;
       default: return <Settings className="h-4 w-4" />;
     }
   };
@@ -165,46 +165,50 @@ const ConfigurationSysteme = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="general" className="space-y-4">
-            <TabsList>
-              {Object.keys(groupedConfigs || {}).map((category) => (
-                <TabsTrigger key={category} value={category} className="capitalize">
-                  {getCategoryIcon(category)}
-                  <span className="ml-2">{category}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
+          {Object.keys(groupedConfigs || {}).length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">Aucune configuration disponible</p>
+          ) : (
+            <Tabs defaultValue={Object.keys(groupedConfigs || {})[0]} className="space-y-4">
+              <TabsList className="flex flex-wrap h-auto gap-1">
+                {Object.keys(groupedConfigs || {}).map((category) => (
+                  <TabsTrigger key={category} value={category} className="capitalize text-xs sm:text-sm">
+                    {getCategoryIcon(category)}
+                    <span className="ml-1 sm:ml-2">{category}</span>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
 
-            {Object.entries(groupedConfigs || {}).map(([category, configs]) => (
-              <TabsContent key={category} value={category} className="space-y-4">
-                {configs.map((config) => {
-                  const hasChanged = editedValues[config.id] !== undefined && editedValues[config.id] !== config.valeur;
-                  
-                  return (
-                    <Card key={config.id}>
-                      <CardContent className="pt-6 space-y-4">
-                        {renderInput(config)}
-                        {config.modifiable && hasChanged && (
-                          <Button
-                            onClick={() => handleSave(config)}
-                            disabled={updateConfigMutation.isPending}
-                            size="sm"
-                          >
-                            {updateConfigMutation.isPending ? (
-                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                            ) : (
-                              <Save className="h-4 w-4 mr-2" />
-                            )}
-                            Enregistrer
-                          </Button>
-                        )}
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </TabsContent>
-            ))}
-          </Tabs>
+              {Object.entries(groupedConfigs || {}).map(([category, configs]) => (
+                <TabsContent key={category} value={category} className="space-y-4">
+                  {configs.map((config) => {
+                    const hasChanged = editedValues[config.id] !== undefined && editedValues[config.id] !== config.valeur;
+                    
+                    return (
+                      <Card key={config.id}>
+                        <CardContent className="pt-6 space-y-4">
+                          {renderInput(config)}
+                          {config.modifiable && hasChanged && (
+                            <Button
+                              onClick={() => handleSave(config)}
+                              disabled={updateConfigMutation.isPending}
+                              size="sm"
+                            >
+                              {updateConfigMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                              ) : (
+                                <Save className="h-4 w-4 mr-2" />
+                              )}
+                              Enregistrer
+                            </Button>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </TabsContent>
+              ))}
+            </Tabs>
+          )}
         </CardContent>
       </Card>
     </div>

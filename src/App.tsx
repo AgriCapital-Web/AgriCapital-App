@@ -29,6 +29,7 @@ import AccountRequests from "./pages/AccountRequests";
 import CreateSuperAdmin from "./pages/CreateSuperAdmin";
 import PaiementsWave from "./pages/PaiementsWave";
 import Tickets from "./pages/Tickets";
+import ClientPortal from "./pages/ClientPortal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,8 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/account-request" element={<AccountRequest />} />
             <Route path="/create-super-admin" element={<CreateSuperAdmin />} />
+            <Route path="/pay" element={<ClientPortal />} />
+            <Route path="/client" element={<ClientPortal />} />
             
             {/* Protected routes - Dashboard & Core */}
             <Route path="/dashboard" element={<Dashboard />} />
