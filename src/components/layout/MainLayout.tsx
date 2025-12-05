@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NotificationCenter } from "@/components/common/NotificationCenter";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import logoWhite from "@/assets/logo-white.png";
 import { cn } from "@/lib/utils";
 import { 
@@ -34,15 +35,15 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const location = useLocation();
   const [open, setOpen] = useState(false);
 
-  const canViewPaiements = hasRole('super_admin') || hasRole('directeur_general') || 
-    hasRole('responsable_financier') || hasRole('agent_service_client');
+  const canViewPaiements = hasRole('super_admin') || hasRole('directeur_tc') || 
+    hasRole('responsable_zone') || hasRole('comptable');
   
-  const canViewCommissions = hasRole('super_admin') || hasRole('pdg') || hasRole('directeur_general') ||
-    hasRole('responsable_financier') || hasRole('comptable') || hasRole('technico_commercial') ||
+  const canViewCommissions = hasRole('super_admin') || hasRole('directeur_tc') ||
+    hasRole('comptable') || hasRole('technico_commercial') ||
     hasRole('chef_equipe') || hasRole('responsable_zone');
 
-  const canViewRapports = hasRole('super_admin') || hasRole('pdg') || hasRole('directeur_general') ||
-    hasRole('directeur_technico_commercial') || hasRole('responsable_zone');
+  const canViewRapports = hasRole('super_admin') || hasRole('directeur_tc') ||
+    hasRole('responsable_zone');
 
   const menuItems = [
     { icon: LayoutDashboard, label: "Tableau de bord", path: "/dashboard" },
@@ -53,10 +54,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     { icon: Smartphone, label: "Paiements Wave", path: "/paiements-wave", requireRole: canViewPaiements },
     { icon: UsersRound, label: "Équipes", path: "/equipes" },
     { icon: Receipt, label: "Commissions", path: "/commissions", requireRole: canViewCommissions },
-    { icon: BarChart3, label: "Rapports Technico-Comm.", path: "/rapports-techniques", requireRole: canViewRapports },
+    { icon: BarChart3, label: "Rapports", path: "/rapports-techniques", requireRole: canViewRapports },
     { icon: Wallet, label: "Portefeuilles", path: "/portefeuilles", requireRole: canViewCommissions },
     { icon: Ticket, label: "Tickets", path: "/tickets" },
-    { icon: UserCheck, label: "Demandes de compte", path: "/account-requests", adminOnly: true },
+    { icon: UserCheck, label: "Demandes", path: "/account-requests", adminOnly: true },
     { icon: Shield, label: "Paramètres", path: "/parametres", adminOnly: true },
   ];
 
@@ -65,13 +66,17 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     navigate("/login");
   };
 
-  const SidebarContent = () => (
+  const getInitials = (name: string) => {
+    return name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'US';
+  };
+
+  const SidebarContent = ({ expanded = false }: { expanded?: boolean }) => (
     <div className="flex flex-col h-full bg-primary">
-      <div className="p-4 border-b border-white/10 flex justify-center">
-        <img src={logoWhite} alt="AgriCapital" className="h-16 w-auto object-contain" />
+      <div className="p-3 sm:p-4 border-b border-white/10 flex justify-center">
+        <img src={logoWhite} alt="AgriCapital" className="h-10 sm:h-12 lg:h-16 w-auto object-contain" />
       </div>
       
-      <nav className="flex-1 p-4 space-y-1">
+      <nav className="flex-1 p-2 sm:p-4 space-y-1 overflow-y-auto">
         {menuItems
           .filter(item => {
             if (item.adminOnly && !hasRole('super_admin')) return false;
@@ -83,8 +88,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               key={item.path}
               variant="ghost"
               className={cn(
-                "w-full justify-center text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground transition-all",
-                "focus:bg-primary-foreground/20 p-3",
+                "w-full text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground transition-all",
+                "focus:bg-primary-foreground/20 p-2 sm:p-3",
+                expanded ? "justify-start gap-3" : "justify-center",
                 location.pathname === item.path && "bg-primary-foreground/20"
               )}
               onClick={() => {
@@ -93,20 +99,25 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               }}
               title={item.label}
             >
-              <item.icon className="h-5 w-5" />
+              <item.icon className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+              {expanded && <span className="text-sm truncate">{item.label}</span>}
             </Button>
           ))}
       </nav>
 
-      <div className="p-4 border-t border-white/10 flex flex-col gap-2">
+      <div className="p-2 sm:p-4 border-t border-white/10 flex flex-col gap-2">
         <NotificationCenter />
         <Button
           variant="ghost"
-          className="w-full justify-center text-primary-foreground hover:bg-destructive hover:text-white transition-all p-3"
+          className={cn(
+            "w-full text-primary-foreground hover:bg-destructive hover:text-white transition-all p-2 sm:p-3",
+            expanded ? "justify-start gap-3" : "justify-center"
+          )}
           onClick={handleLogout}
           title="Déconnexion"
         >
-          <LogOut className="h-5 w-5" />
+          <LogOut className="h-4 w-4 sm:h-5 sm:w-5" />
+          {expanded && <span className="text-sm">Déconnexion</span>}
         </Button>
       </div>
     </div>
@@ -115,25 +126,53 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <div className="flex h-screen bg-background">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-20 flex-col">
+      <aside className="hidden md:flex w-16 lg:w-20 flex-col flex-shrink-0">
         <SidebarContent />
       </aside>
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Header + Sidebar */}
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild className="md:hidden">
-          <Button variant="ghost" size="icon" className="fixed top-4 left-4 z-40 bg-accent text-accent-foreground hover:bg-accent/90">
-            <Menu className="h-6 w-6" />
-          </Button>
-        </SheetTrigger>
+        <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-background border-b px-3 py-2 flex items-center justify-between">
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="bg-primary text-primary-foreground hover:bg-primary/90">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <div className="flex items-center gap-2">
+            <div className="text-right">
+              <p className="text-xs font-medium truncate max-w-[120px]">{profile?.nom_complet}</p>
+            </div>
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={profile?.photo_url || ''} />
+              <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                {getInitials(profile?.nom_complet || '')}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+        </div>
         <SheetContent side="left" className="p-0 w-64">
-          <SidebarContent />
+          <SidebarContent expanded />
         </SheetContent>
       </Sheet>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto pt-16 md:pt-0">
-        <div className="container mx-auto p-3 sm:p-4 md:p-6">
+      <main className="flex-1 overflow-auto pt-14 md:pt-0">
+        {/* Desktop Header with profile */}
+        <div className="hidden md:flex items-center justify-end gap-3 px-4 py-3 border-b bg-background">
+          <div className="text-right">
+            <p className="text-sm font-medium">{profile?.nom_complet || "Utilisateur"}</p>
+            <p className="text-xs text-muted-foreground">
+              Support: <a href="tel:+2250759566087" className="text-primary hover:underline">+225 07 59 56 60 87</a>
+            </p>
+          </div>
+          <Avatar className="h-9 w-9">
+            <AvatarImage src={profile?.photo_url || ''} />
+            <AvatarFallback className="bg-primary text-primary-foreground text-sm">
+              {getInitials(profile?.nom_complet || '')}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+        <div className="p-3 sm:p-4 md:p-6">
           {children}
         </div>
       </main>
